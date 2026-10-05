@@ -9,7 +9,10 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 # pip n'est pas utile a l'execution : on le retire pour reduire la surface d'attaque
-RUN python -m pip uninstall -y pip \
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip uninstall -y pip \
     && groupadd -g 10001 app \
     && useradd -u 10001 -g app -M -s /usr/sbin/nologin app
 WORKDIR /app
