@@ -1,0 +1,15 @@
+.git
+.github
+.semgrep
+k8s
+docs
+scripts
+tests
+reports
+__pycache__
+*.pyc
+.env
+.venv
+requirements-dev.txt
+pyproject.toml
+*.md

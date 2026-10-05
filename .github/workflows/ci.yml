@@ -1,0 +1,238 @@
+name: secure-delivery
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Versions epinglees : ne jamais utiliser "latest" pour des outils de securite
+  TRIVY_IMAGE: aquasec/trivy:0.75.0
+  GITLEAKS_IMAGE: zricethezav/gitleaks:v8.30.1
+
+jobs:
+  # ===================== Qualite =====================
+  lint:
+    name: 1. Lint (Ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check .
+
+  test:
+    name: 2. Tests (Pytest)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: |
+          mkdir -p reports
+          pytest --junitxml=reports/junit.xml --cov=. --cov-report=term \
+                 --cov-report=xml:reports/coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests
+          path: reports/
+
+  # ===================== Scans de securite (en parallele) =====================
+  # Les scanners produisent des rapports sans bloquer : c'est le security gate qui decide.
+  secrets-scan:
+    name: 3a. Secrets (Gitleaks)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # tout l'historique Git, pas seulement le dernier commit
+      - run: |
+          mkdir -p reports
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" "$GITLEAKS_IMAGE" \
+            git /repo --redact --exit-code 0 \
+            --report-format json --report-path /repo/reports/gitleaks.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-gitleaks
+          path: reports/
+
+  sast:
+    name: 3b. SAST (Semgrep)
+    needs: test
+    runs-on: ubuntu-latest
+    container: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p reports
+          semgrep scan --config p/python --config p/flask --config .semgrep/ \
+            --metrics=off --json --output reports/semgrep.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-semgrep
+          path: reports/
+
+  deps-scan:
+    name: 3c. Dependances (Trivy)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p reports && chmod 777 reports
+          docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" fs /src \
+            --scanners vuln --ignore-unfixed --ignorefile /src/.trivyignore \
+            --format json --output /src/reports/trivy-deps.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-trivy-deps
+          path: reports/
+
+  iac-scan:
+    name: 3d. IaC Docker + K8s (Trivy)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p reports && chmod 777 reports
+          docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" config /src \
+            --format json --output /src/reports/trivy-iac.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-trivy-iac
+          path: reports/
+
+  # ===================== Security gate 1 : code =====================
+  security-gate:
+    name: 4. Security gate (code)
+    needs: [secrets-scan, sast, deps-scan, iac-scan]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: report-*
+          path: reports
+          merge-multiple: true
+      - run: |
+          python3 scripts/security_gate.py \
+            reports/gitleaks.json reports/semgrep.json \
+            reports/trivy-deps.json reports/trivy-iac.json
+
+  # ===================== Build + scan image + Security gate 2 + push =====================
+  build:
+    name: 5. Build, scan image, push
+    needs: security-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: meta
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/notes-app:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - name: Build
+        run: |
+          docker build \
+            --label org.opencontainers.image.source="${{ github.server_url }}/${{ github.repository }}" \
+            --label org.opencontainers.image.revision="${{ github.sha }}" \
+            -t "${{ steps.meta.outputs.image }}" .
+      - name: Scan de l'image (Trivy) + SBOM
+        run: |
+          mkdir -p reports && chmod 777 reports
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src" "$TRIVY_IMAGE" \
+            image "${{ steps.meta.outputs.image }}" --scanners vuln,secret --ignore-unfixed \
+            --ignorefile /src/.trivyignore --format json --output /src/reports/trivy-image.json
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src" "$TRIVY_IMAGE" \
+            image "${{ steps.meta.outputs.image }}" --format cyclonedx --output /src/reports/sbom.cdx.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-image
+          path: reports/
+      - name: Security gate 2 (image)
+        run: python3 scripts/security_gate.py reports/trivy-image.json
+      - name: Connexion a GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker push "${{ steps.meta.outputs.image }}"
+
+  # ===================== Deploiement sur K3s (VM Debian OVH) =====================
+  deploy:
+    name: 6. Deploy K3s + 7. Scan cluster
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, ovh]
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: read
+    env:
+      IMAGE: ${{ needs.build.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
+      - name: Namespace et secrets
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl -n notes create secret docker-registry ghcr-pull \
+            --docker-server=ghcr.io --docker-username="${{ github.actor }}" \
+            --docker-password="${{ secrets.GITHUB_TOKEN }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl -n notes create secret generic notes-secret \
+            --from-literal=SECRET_KEY="${{ secrets.FLASK_SECRET_KEY }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+      - name: Deploiement
+        run: |
+          for f in k8s/*.yaml; do
+            sed -e "s|ghcr.io/OWNER/notes-app:TAG|${IMAGE}|" \
+                -e "s|VERSION_PLACEHOLDER|${GITHUB_SHA::7}|" "$f"
+            echo "---"
+          done | kubectl apply -f -
+          kubectl -n notes rollout restart deployment/notes-app
+          kubectl -n notes rollout status deployment/notes-app --timeout=180s
+      - name: Smoke test
+        run: |
+          kubectl -n notes port-forward svc/notes-app 8080:80 >/dev/null 2>&1 &
+          PF_PID=$!
+          sleep 5
+          curl -fsS http://127.0.0.1:8080/health
+          kill "$PF_PID"
+      - name: Scan du cluster (Trivy, informatif)
+        if: always()
+        run: |
+          mkdir -p reports
+          trivy k8s --report summary --timeout 15m | tee reports/trivy-k8s-summary.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-cluster
+          path: reports/

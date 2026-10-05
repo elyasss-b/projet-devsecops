@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes</title>
+</head>
+<body>
+  <h1>Notes</h1>
+  <ul>
+    {% for note in notes %}
+      <li>{{ note.title }}</li>
+    {% else %}
+      <li>Aucune note pour le moment</li>
+    {% endfor %}
+  </ul>
+  <p><small>Version {{ version }}</small></p>
+</body>
+</html>

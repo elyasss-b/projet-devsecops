@@ -1,0 +1,24 @@
+rules:
+  - id: sql-query-built-from-string
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Requete SQL construite par f-string ou concatenation : injection SQL possible.
+      Utiliser une requete parametree, par exemple execute("... WHERE x = ?", (valeur,)).
+    pattern-either:
+      - pattern: $DB.execute(f"...", ...)
+      - pattern: $DB.execute("..." + $X, ...)
+      - pattern: $DB.execute("..." % $X, ...)
+      - pattern: $DB.execute("...".format(...), ...)
+
+  - id: subprocess-shell-true
+    languages: [python]
+    severity: ERROR
+    message: Commande systeme lancee avec shell=True, injection de commande possible.
+    pattern: subprocess.$FUNC(..., shell=True, ...)
+
+  - id: flask-debug-enabled
+    languages: [python]
+    severity: WARNING
+    message: Le mode debug de Flask ne doit jamais etre active en production.
+    pattern: $APP.run(..., debug=True, ...)

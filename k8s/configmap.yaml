@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notes-config
+  namespace: notes
+data:
+  APP_VERSION: "VERSION_PLACEHOLDER"   # remplace par le SHA du commit lors du deploiement

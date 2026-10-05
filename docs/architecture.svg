@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1040" width="1400" height="1040" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+    </marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c53030"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2f855a"/>
+    </marker>
+    <style>
+      .t{font-size:14px;fill:#1a202c;text-anchor:middle;font-weight:bold}
+      .s{font-size:12px;fill:#4a5568;text-anchor:middle}
+      .l{font-size:12px;fill:#4a5568}
+      .h{font-size:15px;font-weight:bold;fill:#1a202c}
+      .ln{stroke:#444;stroke-width:1.6;fill:none}
+      .q{fill:#edf2f7;stroke:#718096;stroke-width:1.4}
+      .sec{fill:#fffaf0;stroke:#dd6b20;stroke-width:1.4}
+      .gate{fill:#fff5f5;stroke:#c53030;stroke-width:1.8}
+      .bld{fill:#ebf8ff;stroke:#3182ce;stroke-width:1.4}
+      .k8s{fill:#f0fff4;stroke:#2f855a;stroke-width:1.4}
+      .art{fill:#faf5ff;stroke:#805ad5;stroke-width:1.4}
+    </style>
+  </defs>
+
+  <text x="40" y="32" font-size="20" font-weight="bold" fill="#1a202c">Plateforme de delivery sécurisée : application Notes</text>
+
+  <!-- Developpeurs et depot -->
+  <rect x="350" y="50" width="200" height="45" rx="8" class="q"/>
+  <text x="450" y="78" class="t">Binôme de développement</text>
+  <line x1="450" y1="95" x2="450" y2="123" class="ln" marker-end="url(#a)"/>
+  <text x="460" y="114" class="l">git push / pull request</text>
+  <rect x="330" y="125" width="240" height="55" rx="8" class="q"/>
+  <text x="450" y="148" class="t">Dépôt GitHub</text>
+  <text x="450" y="167" class="s">app Flask, Dockerfile, manifests K8s</text>
+
+  <!-- Conteneur GitHub Actions -->
+  <rect x="40" y="210" width="820" height="660" rx="12" fill="#f7fafc" stroke="#a0aec0" stroke-dasharray="6 4"/>
+  <text x="58" y="234" class="h">GitHub Actions (runners hébergés par GitHub)</text>
+  <line x1="450" y1="180" x2="450" y2="243" class="ln" marker-end="url(#a)"/>
+
+  <rect x="350" y="245" width="200" height="40" rx="8" class="q"/>
+  <text x="450" y="270" class="t">1. Lint (Ruff)</text>
+  <line x1="450" y1="285" x2="450" y2="308" class="ln" marker-end="url(#a)"/>
+  <rect x="350" y="310" width="200" height="40" rx="8" class="q"/>
+  <text x="450" y="335" class="t">2. Tests (Pytest)</text>
+
+  <!-- fan out -->
+  <path d="M450,350 V375 M150,375 H750 M150,375 V398 M350,375 V398 M550,375 V398 M750,375 V398" class="ln"/>
+  <g>
+    <rect x="60" y="400" width="180" height="60" rx="8" class="sec"/>
+    <text x="150" y="425" class="t">3a. Secrets</text><text x="150" y="445" class="s">Gitleaks</text>
+    <rect x="260" y="400" width="180" height="60" rx="8" class="sec"/>
+    <text x="350" y="425" class="t">3b. SAST</text><text x="350" y="445" class="s">Semgrep</text>
+    <rect x="460" y="400" width="180" height="60" rx="8" class="sec"/>
+    <text x="550" y="425" class="t">3c. Dépendances</text><text x="550" y="445" class="s">Trivy fs</text>
+    <rect x="660" y="400" width="180" height="60" rx="8" class="sec"/>
+    <text x="750" y="425" class="t">3d. IaC Docker + K8s</text><text x="750" y="445" class="s">Trivy config</text>
+  </g>
+  <path d="M150,460 V478 M350,460 V478 M550,460 V478 M750,460 V478 M150,478 H750" class="ln"/>
+  <line x1="450" y1="478" x2="450" y2="488" class="ln" marker-end="url(#a)"/>
+
+  <!-- Gate 1 -->
+  <polygon points="340,530 450,490 560,530 450,570" class="gate"/>
+  <text x="450" y="527" class="t">4. Security gate</text>
+  <text x="450" y="545" class="s">code</text>
+  <line x1="340" y1="530" x2="252" y2="530" stroke="#c53030" stroke-width="1.6" marker-end="url(#r)"/>
+  <text x="296" y="522" font-size="12" fill="#c53030" text-anchor="middle" font-weight="bold">FAIL</text>
+  <rect x="60" y="505" width="190" height="50" rx="8" fill="#fff5f5" stroke="#c53030"/>
+  <text x="155" y="527" class="t" fill="#c53030">Pipeline bloqué</text>
+  <text x="155" y="545" class="s">aucune image construite</text>
+  <line x1="450" y1="570" x2="450" y2="603" stroke="#2f855a" stroke-width="1.6" marker-end="url(#g)"/>
+  <text x="460" y="592" font-size="12" fill="#2f855a" font-weight="bold">PASS</text>
+
+  <rect x="350" y="605" width="200" height="40" rx="8" class="bld"/>
+  <text x="450" y="630" class="t">5. Build image Docker</text>
+  <line x1="450" y1="645" x2="450" y2="673" class="ln" marker-end="url(#a)"/>
+  <rect x="350" y="675" width="200" height="40" rx="8" class="sec"/>
+  <text x="450" y="700" class="t">Scan image Trivy + SBOM</text>
+  <line x1="450" y1="715" x2="450" y2="738" class="ln" marker-end="url(#a)"/>
+
+  <!-- Gate 2 -->
+  <polygon points="340,775 450,740 560,775 450,810" class="gate"/>
+  <text x="450" y="772" class="t">Security gate</text>
+  <text x="450" y="790" class="s">image</text>
+  <line x1="340" y1="775" x2="252" y2="775" stroke="#c53030" stroke-width="1.6" marker-end="url(#r)"/>
+  <text x="296" y="767" font-size="12" fill="#c53030" text-anchor="middle" font-weight="bold">FAIL</text>
+  <rect x="60" y="750" width="190" height="50" rx="8" fill="#fff5f5" stroke="#c53030"/>
+  <text x="155" y="772" class="t" fill="#c53030">Image rejetée</text>
+  <text x="155" y="790" class="s">non publiée</text>
+
+  <!-- Artefacts -->
+  <rect x="640" y="600" width="200" height="100" rx="8" class="art"/>
+  <text x="740" y="628" class="t">Artefacts du pipeline</text>
+  <text x="740" y="650" class="s">rapports JSON des scans</text>
+  <text x="740" y="668" class="s">SBOM CycloneDX</text>
+  <text x="740" y="686" class="s">résumé du security gate</text>
+  <path d="M560,530 H740 V598" fill="none" stroke="#805ad5" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <path d="M560,775 H740 V702" fill="none" stroke="#805ad5" stroke-width="1.4" stroke-dasharray="5 4"/>
+
+  <!-- Registry -->
+  <line x1="450" y1="810" x2="450" y2="898" stroke="#2f855a" stroke-width="1.6" marker-end="url(#g)"/>
+  <text x="460" y="845" font-size="12" fill="#2f855a" font-weight="bold">PASS + branche main</text>
+  <text x="460" y="861" class="l">docker push</text>
+  <rect x="340" y="900" width="220" height="55" rx="8" class="bld"/>
+  <text x="450" y="923" class="t">GitHub Container Registry</text>
+  <text x="450" y="942" class="s">ghcr.io/.../notes-app:&lt;sha&gt;</text>
+
+  <!-- Politique -->
+  <rect x="40" y="890" width="270" height="125" rx="8" fill="#fff" stroke="#a0aec0"/>
+  <text x="56" y="914" class="h">Politique du security gate</text>
+  <text x="56" y="940" class="l"><tspan font-weight="bold" fill="#c53030">CRITICAL</tspan>  pipeline bloqué</text>
+  <text x="56" y="960" class="l"><tspan font-weight="bold" fill="#c53030">HIGH</tspan>  pipeline bloqué</text>
+  <text x="56" y="980" class="l"><tspan font-weight="bold" fill="#dd6b20">MEDIUM</tspan>  avertissement</text>
+  <text x="56" y="1000" class="l"><tspan font-weight="bold" fill="#3182ce">LOW</tspan>  information</text>
+
+  <!-- VM OVH -->
+  <rect x="900" y="210" width="460" height="660" rx="12" fill="#f7fafc" stroke="#a0aec0" stroke-dasharray="6 4"/>
+  <text x="918" y="234" class="h">VM Debian (OVH)</text>
+
+  <rect x="920" y="250" width="190" height="60" rx="8" class="q"/>
+  <text x="1015" y="275" class="t">Runner auto-hébergé</text>
+  <text x="1015" y="294" class="s">6. Deploy (kubectl)</text>
+  <path d="M860,280 H918" fill="none" stroke="#444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#a)"/>
+  <text x="880" y="266" class="l" text-anchor="middle">job</text>
+
+  <rect x="1160" y="125" width="180" height="55" rx="8" class="q"/>
+  <text x="1250" y="148" class="t">Utilisateur</text>
+  <text x="1250" y="167" class="s">navigateur web</text>
+  <line x1="1250" y1="180" x2="1250" y2="398" class="ln" marker-end="url(#a)"/>
+  <text x="1258" y="300" class="l">HTTP :80</text>
+
+  <!-- Cluster -->
+  <rect x="920" y="340" width="420" height="510" rx="10" fill="#fbfffc" stroke="#2f855a" stroke-width="1.4"/>
+  <text x="936" y="364" class="h">Cluster K3s</text>
+  <text x="936" y="383" class="l">namespace notes (Pod Security restricted)</text>
+
+  <rect x="1160" y="400" width="160" height="40" rx="8" class="k8s"/>
+  <text x="1240" y="425" class="t">Ingress Traefik</text>
+  <line x1="1240" y1="440" x2="1240" y2="468" class="ln" marker-end="url(#a)"/>
+  <rect x="1160" y="470" width="160" height="40" rx="8" class="k8s"/>
+  <text x="1240" y="495" class="t">Service</text>
+  <line x1="1240" y1="510" x2="1240" y2="558" class="ln" marker-end="url(#a)"/>
+
+  <line x1="1015" y1="310" x2="1015" y2="558" class="ln" marker-end="url(#a)"/>
+  <text x="1023" y="450" class="l">kubectl apply</text>
+
+  <rect x="940" y="560" width="380" height="60" rx="8" class="k8s"/>
+  <text x="1130" y="585" class="t">Deployment notes-app (2 pods)</text>
+  <text x="1130" y="604" class="s">non-root, rootfs en lecture seule, capabilities supprimées</text>
+
+  <rect x="940" y="650" width="180" height="50" rx="8" class="k8s"/>
+  <text x="1030" y="672" class="t">ConfigMap / Secret</text>
+  <text x="1030" y="690" class="s">version, SECRET_KEY</text>
+  <rect x="1140" y="650" width="180" height="50" rx="8" class="k8s"/>
+  <text x="1230" y="672" class="t">NetworkPolicy</text>
+  <text x="1230" y="690" class="s">trafic depuis Traefik seul</text>
+
+  <rect x="940" y="770" width="380" height="55" rx="8" class="sec"/>
+  <text x="1130" y="793" class="t">7. Scan du cluster (Trivy k8s)</text>
+  <text x="1130" y="812" class="s">informatif : lien DevSecOps et sécurité de l'infra</text>
+
+  <!-- pull image -->
+  <path d="M560,927 H880 V590 H938" fill="none" stroke="#3182ce" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="720" y="919" font-size="12" fill="#3182ce" text-anchor="middle">pull de l'image</text>
+</svg>

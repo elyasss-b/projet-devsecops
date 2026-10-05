@@ -1,0 +1,3 @@
+# Exceptions acceptees. Une CVE par ligne, avec justification et date de revue.
+# Exemple :
+# CVE-2024-XXXXX  # non exploitable ici (fonction non utilisee), revue le 2026-10-05

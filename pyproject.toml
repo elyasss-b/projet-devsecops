@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# Le lint verifie la qualite. La securite est confiee aux outils dedies (Semgrep, Trivy, Gitleaks).
+select = ["E", "F", "W", "I", "B"]
