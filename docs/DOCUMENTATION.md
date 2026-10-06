@@ -1,7 +1,6 @@
 # Projet DevSecOps : plateforme de delivery sécurisée
 
-> Binôme : [Nom 1], [Nom 2]
-> Dépôt : [URL du dépôt GitHub]
+> Binôme : Chayma Kalmani et Elyas Boutahar
 
 ## 1. Objectif
 
