@@ -173,7 +173,7 @@ jobs:
         run: python3 scripts/security_gate.py reports/trivy-image.json
       - name: Connexion a GHCR
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
