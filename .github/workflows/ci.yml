@@ -197,6 +197,9 @@ jobs:
       packages: read
     env:
       IMAGE: ${{ needs.build.outputs.image }}
+      # secrets passent par des variables d'environnement
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - run: echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
