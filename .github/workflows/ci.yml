@@ -197,7 +197,7 @@ jobs:
       packages: read
     env:
       IMAGE: ${{ needs.build.outputs.image }}
-      # secrets passent par des variables d'environnement
+      # Les secrets passent par des variables d'environnement, jamais inseres directement dans le script
       FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
       REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -208,10 +208,10 @@ jobs:
           kubectl apply -f k8s/namespace.yaml
           kubectl -n notes create secret docker-registry ghcr-pull \
             --docker-server=ghcr.io --docker-username="${{ github.actor }}" \
-            --docker-password="${{ secrets.GITHUB_TOKEN }}" \
+            --docker-password="$REGISTRY_TOKEN" \
             --dry-run=client -o yaml | kubectl apply -f -
           kubectl -n notes create secret generic notes-secret \
-            --from-literal=SECRET_KEY="${{ secrets.FLASK_SECRET_KEY }}" \
+            --from-literal=SECRET_KEY="$FLASK_SECRET_KEY" \
             --dry-run=client -o yaml | kubectl apply -f -
       - name: Deploiement
         run: |
