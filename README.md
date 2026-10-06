@@ -43,4 +43,4 @@ Politique du security gate : CRITICAL et HIGH bloquent, MEDIUM génère un avert
 
 Les étapes 5 (push) à 7 ne s'exécutent que sur la branche `main`.
 
-Documentation complète : [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)
+Rapport du projet : [docs/RAPPORT.md](docs/RAPPORT.md)
