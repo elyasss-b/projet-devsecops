@@ -21,7 +21,7 @@ jobs:
     name: 1. Lint (Ruff)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -33,7 +33,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -55,7 +55,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0   # tout l'historique Git, pas seulement le dernier commit
       - run: |
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     container: semgrep/semgrep
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: |
           mkdir -p reports
           semgrep scan --config p/python --config p/flask --config .semgrep/ \
@@ -91,7 +91,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: |
           mkdir -p reports && chmod 777 reports
           docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" fs /src \
@@ -108,7 +108,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: |
           mkdir -p reports && chmod 777 reports
           docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" config /src \
@@ -125,7 +125,7 @@ jobs:
     needs: [secrets-scan, sast, deps-scan, iac-scan]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/download-artifact@v4
         with:
           pattern: report-*
@@ -147,7 +147,7 @@ jobs:
     outputs:
       image: ${{ steps.meta.outputs.image }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: meta
         run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/notes-app:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - name: Build
@@ -201,7 +201,7 @@ jobs:
       FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
       REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
       - name: Namespace et secrets
         run: |
