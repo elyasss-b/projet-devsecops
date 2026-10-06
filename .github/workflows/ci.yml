@@ -61,7 +61,7 @@ jobs:
       - run: |
           mkdir -p reports
           docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" "$GITLEAKS_IMAGE" \
-            git /repo --redact --exit-code 0 \
+            git /repo --redact --exit-code 0 --log-opts="--full-history HEAD" \
             --report-format json --report-path /repo/reports/gitleaks.json
       - uses: actions/upload-artifact@v4
         if: always()
