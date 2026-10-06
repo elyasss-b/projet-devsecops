@@ -2,6 +2,7 @@
 
 import itertools
 import os
+import sqlite3
 
 from flask import Flask, abort, jsonify, render_template, request
 
@@ -66,3 +67,19 @@ def delete_note(note_id):
     if _notes.pop(note_id, None) is None:
         abort(404)
     return "", 204
+
+
+@app.get("/api/search")
+def search_notes():
+    term = request.args.get("q", "")
+    db = sqlite3.connect(":memory:")
+    db.execute("CREATE TABLE notes (id INTEGER, title TEXT)")
+    rows = [(n["id"], n["title"]) for n in _notes.values()]
+    db.executemany("INSERT INTO notes VALUES (?, ?)", rows)
+    rows = db.execute(f"SELECT id, title FROM notes WHERE title LIKE '%{term}%'").fetchall()
+    db.close()
+    return jsonify([{"id": r[0], "title": r[1]} for r in rows])
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -3,10 +3,8 @@ kind: Deployment
 metadata:
   name: notes-app
   namespace: notes
-  labels:
-    app: notes-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: notes-app
@@ -15,55 +13,18 @@ spec:
       labels:
         app: notes-app
     spec:
-      automountServiceAccountToken: false
-      imagePullSecrets:
-        - name: ghcr-pull
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        seccompProfile:
-          type: RuntimeDefault
       containers:
         - name: app
-          image: ghcr.io/OWNER/notes-app:TAG   # remplace par l'image du commit lors du deploiement
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/OWNER/notes-app:latest
           ports:
             - containerPort: 5000
-          envFrom:
-            - configMapRef:
-                name: notes-config
-            - secretRef:
-                name: notes-secret
           securityContext:
-            runAsNonRoot: true
-            runAsUser: 10001
-            runAsGroup: 10001
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
-          resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              cpu: 250m
-              memory: 256Mi
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 5000
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 10
+            privileged: true
+            runAsUser: 0
           volumeMounts:
-            - name: tmp
-              mountPath: /tmp
+            - name: host
+              mountPath: /host
       volumes:
-        - name: tmp
-          emptyDir: {}
+        - name: host
+          hostPath:
+            path: /
