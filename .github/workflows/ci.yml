@@ -42,7 +42,7 @@ jobs:
           mkdir -p reports
           pytest --junitxml=reports/junit.xml --cov=. --cov-report=term \
                  --cov-report=xml:reports/coverage.xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: tests
@@ -63,7 +63,7 @@ jobs:
           docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" "$GITLEAKS_IMAGE" \
             git /repo --redact --exit-code 0 --log-opts="--full-history HEAD" \
             --report-format json --report-path /repo/reports/gitleaks.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: report-gitleaks
@@ -80,7 +80,7 @@ jobs:
           mkdir -p reports
           semgrep scan --config p/python --config p/flask --config .semgrep/ \
             --metrics=off --json --output reports/semgrep.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: report-semgrep
@@ -97,7 +97,7 @@ jobs:
           docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" fs /src \
             --scanners vuln --ignore-unfixed --ignorefile /src/.trivyignore \
             --format json --output /src/reports/trivy-deps.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: report-trivy-deps
@@ -113,7 +113,7 @@ jobs:
           mkdir -p reports && chmod 777 reports
           docker run --rm -v "$PWD:/src" "$TRIVY_IMAGE" config /src \
             --format json --output /src/reports/trivy-iac.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: report-trivy-iac
@@ -164,7 +164,7 @@ jobs:
             --ignorefile /src/.trivyignore --format json --output /src/reports/trivy-image.json
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src" "$TRIVY_IMAGE" \
             image "${{ steps.meta.outputs.image }}" --format cyclonedx --output /src/reports/sbom.cdx.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: report-image
@@ -234,7 +234,7 @@ jobs:
         run: |
           mkdir -p reports
           trivy k8s --report summary --timeout 15m | tee reports/trivy-k8s-summary.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: report-cluster
