@@ -88,18 +88,6 @@ La branche `challenge` contient cinq problèmes volontaires : une fausse clé AW
 
 Les autres groupes ont reçu le lien du dépôt public. Nous ne leur avons pas donné de droit d'écriture : avec ce droit, une branche contenant un workflow modifié aurait pu s'exécuter sur notre runner, donc sur la VM et le cluster. Ils devaient forker le dépôt et proposer leurs attaques par pull request. Leur pipeline ne démarrait qu'après notre approbation, sans accès à nos secrets, et rien ne pouvait être mergé sans gate vert et sans relecture.
 
-### Attaques reçues
-
-[À compléter : groupe, ce qui a été tenté, détecté ou non, par quel outil, décision du gate.]
-
-| Groupe | Attaque tentée | Détectée par | Résultat |
-|---|---|---|---|
-| | | | |
-
-### Ce que nous avons testé chez les autres
-
-[À compléter si vous avez attaqué d'autres dépôts : ce que vous avez tenté et ce qui est passé ou non.]
-
 ## 9. Limites et suite
 
 Les incidents rencontrés nous ont fait corriger la plateforme : passage des secrets par variables d'environnement après une erreur de syntaxe dans le script de déploiement, et limitation de Gitleaks à l'historique de la branche testée car le faux secret de `challenge` bloquait les autres PR.
