@@ -1,11 +1,11 @@
 # Etape 1 : installation des dependances
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 WORKDIR /build
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # Etape 2 : image d'execution minimale
-FROM python:3.12-slim
+FROM python:3.14-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 # pip n'est pas utile a l'execution : on le retire pour reduire la surface d'attaque
